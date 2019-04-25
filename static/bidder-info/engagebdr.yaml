@@ -1,0 +1,7 @@
+maintainer:
+  email: "admin@adcel.co"
+capabilities:
+  app:
+    mediaTypes:
+    - banner
+    - video
