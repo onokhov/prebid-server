@@ -14,71 +14,63 @@ import (
 )
 
 
-const SSPID_TEST_BANNER = "10589"
-const SSPID_TEST_VIDEO = "10592"
-
 type EngageBDRAdapter struct {
 	http    *adapters.HTTPAdapter
 	URI     string
-	testing bool
 }
 
 func (adapter *EngageBDRAdapter) MakeRequests(request *openrtb.BidRequest) ([]*adapters.RequestData, []error) {
 
 	errors := make([]error, 0)
 
-	var bannerImps []openrtb.Imp
-	var videoImps []openrtb.Imp
+	// EngageBDR uses different sspid parameters for banner and video.
+	sspidImps := make( map[string] []openrtb.Imp )
 
 	for _, imp := range request.Imp {
-		// EngageBDR uses different sspid parameters for banner and video.
-		if imp.Banner != nil {
-			bannerImps = append(bannerImps, imp)
-		} else if imp.Video != nil {
-			videoImps = append(videoImps, imp)
+		var bidderExt adapters.ExtImpBidder
+		if err := json.Unmarshal(imp.Ext, &bidderExt); err != nil {
+			errors = append(errors, &errortypes.BadInput{
+				Message: fmt.Sprintf("Ignoring imp id=%s, error while decoding extImpBidder, err: %s", imp.ID, err),
+			})
 		}
+		impExt := openrtb_ext.ExtImpEngageBDR{}
+		err := json.Unmarshal(bidderExt.Bidder, &impExt)
+		if err != nil {
+			errors = append(errors, &errortypes.BadInput{
+				Message: fmt.Sprintf("Ignoring imp id=%s, error while decoding impExt, err: %s", imp.ID, err),
+			})
+		}
+		if impExt.Sspid == "" {
+			errors = append(errors, &errortypes.BadInput{
+				Message: fmt.Sprintf("Ignoring imp id=%s, no sspid present", imp.ID),
+			})
+		}
+		sspidImps[impExt.Sspid] = append(sspidImps[impExt.Sspid], imp)
 	}
 
 	var adapterRequests []*adapters.RequestData
-	// Make a copy as we don't want to change the original request
 
 	headers := http.Header{}
 	headers.Add("Content-Type", "application/json;charset=utf-8")
 
-	if len(bannerImps) > 0 {
-		reqCopy := *request
-		reqCopy.Imp = bannerImps
-		reqJSON, err := json.Marshal(reqCopy)
-		if err != nil {
-			errors = append(errors, err)
-			return nil, errors
+	for sspid, imps := range sspidImps {
+		if len(imps) > 0 {
+			// Make a copy as we don't want to change the original request
+			reqCopy := *request
+			reqCopy.Imp = imps
+			reqJSON, err := json.Marshal(reqCopy)
+			if err != nil {
+				errors = append(errors, err)
+				return nil, errors
+			}
+			adapterReq := adapters.RequestData{
+				Method:  "POST",
+				Uri:     adapter.URI + "?sspid=" + sspid,
+				Body:    reqJSON,
+				Headers: headers,
+			}
+			adapterRequests = append(adapterRequests, &adapterReq)
 		}
-		sspidBanner := SSPID_TEST_BANNER
-		adapterReq := adapters.RequestData{
-			Method: "POST",
-			Uri:     adapter.URI + "?sspid=" + sspidBanner,
-			Body:    reqJSON,
-			Headers: headers,
-		}
-		adapterRequests = append(adapterRequests, &adapterReq)
-	}
-
-	if len(videoImps) > 0 {
-		reqCopy := *request
-		reqCopy.Imp = videoImps
-		reqJSON, err := json.Marshal(reqCopy)
-		if err != nil {
-			errors = append(errors, err)
-			return nil, errors
-		}
-		sspidVideo := SSPID_TEST_VIDEO
-		adapterReq := adapters.RequestData{
-			Method: "POST",
-			Uri:     adapter.URI + "?sspid=" + sspidVideo,
-			Body:    reqJSON,
-			Headers: headers,
-		}
-		adapterRequests = append(adapterRequests, &adapterReq)
 	}
 
 	if len(adapterRequests) == 0 {
@@ -142,6 +134,5 @@ func NewEngageBDRBidder(client *http.Client, endpoint string) *EngageBDRAdapter 
 	return &EngageBDRAdapter{
 		http:    adapter,
 		URI:     endpoint,
-		testing: false,
 	}
 }
