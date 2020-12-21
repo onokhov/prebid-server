@@ -42,6 +42,7 @@ func (name *BidderName) String() string {
 const (
 	Bidder33Across         BidderName = "33across"
 	BidderAcuityAds        BidderName = "acuityads"
+	BidderAdcel            BidderName = "adcel"
 	BidderAdform           BidderName = "adform"
 	BidderAdgeneration     BidderName = "adgeneration"
 	BidderAdhese           BidderName = "adhese"
@@ -138,6 +139,7 @@ func CoreBidderNames() []BidderName {
 	return []BidderName{
 		Bidder33Across,
 		BidderAcuityAds,
+		BidderAdcel,
 		BidderAdform,
 		BidderAdgeneration,
 		BidderAdhese,

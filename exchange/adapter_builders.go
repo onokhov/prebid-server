@@ -4,6 +4,7 @@ import (
 	"github.com/prebid/prebid-server/adapters"
 	ttx "github.com/prebid/prebid-server/adapters/33across"
 	"github.com/prebid/prebid-server/adapters/acuityads"
+	"github.com/prebid/prebid-server/adapters/adcel"
 	"github.com/prebid/prebid-server/adapters/adform"
 	"github.com/prebid/prebid-server/adapters/adgeneration"
 	"github.com/prebid/prebid-server/adapters/adhese"
@@ -100,6 +101,7 @@ func newAdapterBuilders() map[openrtb_ext.BidderName]adapters.Builder {
 	return map[openrtb_ext.BidderName]adapters.Builder{
 		openrtb_ext.Bidder33Across:         ttx.Builder,
 		openrtb_ext.BidderAcuityAds:        acuityads.Builder,
+		openrtb_ext.BidderAdcel:            adcel.Builder,
 		openrtb_ext.BidderAdform:           adform.Builder,
 		openrtb_ext.BidderAdgeneration:     adgeneration.Builder,
 		openrtb_ext.BidderAdhese:           adhese.Builder,

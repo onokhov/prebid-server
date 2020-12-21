@@ -1,25 +1,17 @@
-FROM ubuntu:18.04 AS build
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get install -y wget
-RUN cd /tmp && \
-    wget https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz && \
-    tar -xf go1.14.2.linux-amd64.tar.gz && \
-    mv go /usr/local
+FROM golang:alpine AS build
 RUN mkdir -p /app/prebid-server/
 WORKDIR /app/prebid-server/
-ENV GOROOT=/usr/local/go
-ENV PATH=$GOROOT/bin:$PATH
-ENV GOPROXY="https://proxy.golang.org"
-RUN apt-get update && \
-    apt-get install -y git && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+#ENV GOPROXY="https://proxy.golang.org"
+#RUN apt-get update && \
+#    apt-get install -y git && \
+#    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 ENV CGO_ENABLED 0
 COPY ./ ./
 RUN go mod vendor
 RUN go mod tidy
 ARG TEST="true"
-RUN if [ "$TEST" != "false" ]; then ./validate.sh ; fi
+RUN ls -la
+RUN if [ "$TEST" != "false" ]; then /bin/sh validate.sh ; fi
 RUN go build -mod=vendor .
 
 FROM ubuntu:18.04 AS release
