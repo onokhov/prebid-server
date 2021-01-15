@@ -1,0 +1,6 @@
+maintainer:
+  email: "support@adcel.co"
+capabilities:
+  app:
+    mediaTypes:
+      - video
