@@ -1,6 +1,7 @@
 package usersyncers
 
 import (
+	"github.com/prebid/prebid-server/adapters/adcelinmobi"
 	"strings"
 	"text/template"
 
@@ -96,6 +97,7 @@ func NewSyncerMap(cfg *config.Configuration) map[openrtb_ext.BidderName]usersync
 	insertIntoMap(cfg, syncers, openrtb_ext.Bidder33Across, ttx.New33AcrossSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAcuityAds, acuityads.NewAcuityAdsSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdcel, adcel.NewAdcelSyncer)
+	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdcelInmobi, adcelinmobi.NewAdcelInmobiSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdform, adform.NewAdformSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdkernel, adkernel.NewAdkernelSyncer)
 	insertIntoMap(cfg, syncers, openrtb_ext.BidderAdkernelAdn, adkernelAdn.NewAdkernelAdnSyncer)
