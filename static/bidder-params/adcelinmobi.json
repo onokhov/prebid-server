@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Adcel Inmobi Adapter Params",
+  "description": "A schema which validates params accepted by the Adcel Inmobi dapter",
+  "type": "object",
+  "properties": {
+    "sspid": {
+      "type": "string",
+      "description": "PLC parameter",
+      "pattern": "^[0-9]+$"
+    }
+  },
+  "required": ["plc"]
+}
